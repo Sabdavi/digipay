@@ -1,7 +1,9 @@
 package com.digipay.paymentservice.web.controller;
 
 import com.digipay.paymentservice.service.PaymentService;
+import com.digipay.paymentservice.web.ReportData;
 import com.digipay.paymentservice.web.ReportResponse;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +21,7 @@ public class ReportController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<ReportResponse> getTransactions(){
-        return paymentService.getTransactions();
+    public List<ReportResponse> getTransactions(@RequestBody ReportData reportData){
+        return paymentService.getTransactions(reportData);
     }
 }

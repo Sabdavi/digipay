@@ -1,6 +1,7 @@
 package com.digipay.paymentservice.domain;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -10,11 +11,11 @@ public class Transaction {
     private String source;
     private String destination;
     private long amount;
-    private String date;
+    private Date date;
     private Integer status;
     private String description;
 
-    public static Transaction createTransaction(String destination, String source, long amount, String date, String description,int status){
+    public static Transaction createTransaction(String destination, String source, long amount, Date date, String description,int status){
         Transaction transaction = new Transaction();
         transaction.setDestination(destination);
         transaction.setSource(source);
@@ -69,11 +70,11 @@ public class Transaction {
 
     @Basic
     @Column(name = "date")
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

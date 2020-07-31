@@ -2,10 +2,7 @@ package com.digipay.paymentservice.service;
 
 import com.digipay.paymentservice.domain.Transaction;
 import com.digipay.paymentservice.repository.TransactionRepository;
-import com.digipay.paymentservice.web.PaymentRequest;
-import com.digipay.paymentservice.web.ReportResponse;
-import com.digipay.paymentservice.web.ReportResult;
-import com.digipay.paymentservice.web.SmsRequest;
+import com.digipay.paymentservice.web.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.eventuate.tram.messaging.producer.MessageBuilder;
@@ -15,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,10 +41,11 @@ public class PaymentService {
         int status = responseEntity.getStatusCodeValue();
         status = status == HttpStatus.OK.value() ? SUCCESSFUL : FAILED;
         Transaction transaction = Transaction.createTransaction(paymentRequest.getDest(), paymentRequest.getSource(),
-                paymentRequest.getAmount(), null, null, status);
+                paymentRequest.getAmount(), new Date(), null, status);
         transactionRepository.save(transaction);
 
         if (status == SUCCESSFUL) {
+            // TODO: 7/31/20 integrate with oauth server
             SmsRequest smsRequest = new SmsRequest("Successful", "09124363760");
             ObjectMapper mapper = new ObjectMapper();
             String message = null;
@@ -59,21 +59,24 @@ public class PaymentService {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    public List<ReportResponse> getTransactions() {
-        List<ReportResult> failedTransactions = transactionRepository.getFailedTransactions();
-        List<ReportResult> successfulTransactions = transactionRepository.getSuccessfulTransactions();
+    public List<ReportResponse> getTransactions(ReportData reportData) {
+
+
+        List<ReportResult> failedTransactions = transactionRepository.getFailedTransactions(reportData.getFrom(),reportData.getTo());
+        List<ReportResult> successfulTransactions = transactionRepository.getSuccessfulTransactions(reportData.getFrom(),reportData.getTo());
         List<ReportResponse> response = new ArrayList<>();
 
-        // TODO: 7/31/20 improver lambdas.it does not work!
-        successfulTransactions.forEach(successTran -> {
+        // TODO: 8/1/20 merge to a single lambda
+        for(ReportResult result : successfulTransactions){
             ReportResponse response1 = new ReportResponse();
-            response1.setSuccessCount(successTran.getCount());
+            response1.setSuccessCount(result.getCount());
+            response1.setCardNumber(result.getCardNumber());
             Optional<ReportResult> failTran = failedTransactions.stream()
-                    .filter(failedTransaction -> failedTransaction.getCardNumber().equals(successTran.getCardNumber()))
+                    .filter(failedTransaction -> failedTransaction.getCardNumber().equals(result.getCardNumber()))
                     .findAny();
             response1.setFailCount(failTran.get().getCount());
             response.add(response1);
-        });
+        }
         return response;
     }
 }
