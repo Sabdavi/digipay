@@ -7,8 +7,6 @@ For gaining maximum isolation, each service has own its database. there are tota
 the project:
 
 cardManagement:
-
-SELECT * FROM eventuate.message;
 CREATE TABLE `card` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `bank_name` varchar(45) DEFAULT NULL,
