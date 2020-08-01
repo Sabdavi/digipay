@@ -55,6 +55,7 @@ triggering_event VARCHAR(1000),
 metadata VARCHAR(1000),
 published TINYINT DEFAULT 0
 );
+
 CREATE INDEX events_idx ON events(entity_type, entity_id, event_id);
 CREATE INDEX events_published_idx ON events(published, event_id);
 create table entities (
@@ -63,6 +64,7 @@ entity_id VARCHAR(200),
 entity_version VARCHAR(1000) NOT NULL,
 PRIMARY KEY(entity_type, entity_id)
 );
+
 CREATE INDEX entities_idx ON events(entity_type, entity_id);
 create table snapshots (
 entity_type VARCHAR(200),
@@ -73,6 +75,7 @@ snapshot_json VARCHAR(1000) NOT NULL,
 triggering_events VARCHAR(1000),
 PRIMARY KEY(entity_type, entity_id, entity_version)
 );
+
 CREATE TABLE message (
 id varchar(200) NOT NULL,
 destination varchar(1000) NOT NULL,
@@ -83,12 +86,14 @@ creation_time bigint(20) DEFAULT NULL,
 PRIMARY KEY (id),
 KEY message_published_idx (published,id)
 );
+
 create table received_messages (
 consumer_id varchar(200) NOT NULL,
 message_id varchar(200) NOT NULL,
 creation_time bigint(20) DEFAULT NULL,
 PRIMARY KEY (consumer_id, message_id)
 );
+
 create table cdc_monitoring (
 reader_id VARCHAR(200) PRIMARY KEY,
 last_time BIGINT
@@ -99,8 +104,11 @@ ALTER TABLE received_messages MODIFY creation_time BIGINT;
 
 Steps for runnig the project:
 #1.first run Zookeeper: zookeeper-server-start.sh /opt/kafka_2.12-2.5.0/config/zookeeper.properties 
+
 #2.run apache Kafka: kafka-server-start.sh config/server.properties
+
 #3.run your database service (in my case MySql): mysqld_safe --user=mysql 
+
 #4.run CDC service jar: java -jar eventuate-tram-cdc-mysql-service-0.21.3.RELEASE.jar --spring-config-location=./application.properties
 
 here is a properties file:
