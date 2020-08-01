@@ -10,23 +10,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+
 @SpringBootApplication
 @Import(JdbcKafkaTramMessageConfiguration.class)
 public class DigipaySmsServiceApplication {
 
+    private int TIMEOUT = 50;
     public static void main(String[] args) {
         SpringApplication.run(DigipaySmsServiceApplication.class, args);
     }
 
     @Bean
-    public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-        return args -> {
-            String[] beanNames = ctx.getBeanDefinitionNames();
-        };
-    }
-    @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
+        return builder.setConnectTimeout(Duration.ofSeconds(50)).build();
     }
 
 
