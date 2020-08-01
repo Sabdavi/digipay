@@ -6,7 +6,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class MellatProvider implements Provider {
     private RestTemplate restTemplate;
-    private final String url = "http://localhost:8060/mellat-payment/payments/transfer";
+    private final String url = "http://localhost:8060/mellat-payment/payments1/transfer";
 
     public MellatProvider() {
         this.restTemplate = new RestTemplate();

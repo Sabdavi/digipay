@@ -1,10 +1,15 @@
 package com.digipay.paymentservice.web;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 public class PaymentRequest {
     private String source;
+    @JsonAlias("target")
     private String dest;
     private int cvv2;
+    @JsonAlias("“expire”")
     private String expDate;
+    @JsonAlias("pin2")
     private int pin;
     private long amount;
 

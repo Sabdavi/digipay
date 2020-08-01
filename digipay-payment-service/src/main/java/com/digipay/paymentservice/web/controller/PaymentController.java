@@ -18,8 +18,8 @@ public class PaymentController {
     }
 
     @RequestMapping(path = "/transfer",method = RequestMethod.POST)
-    public int transfer(@RequestBody PaymentRequest request){
+    public ResponseEntity transfer(@RequestBody PaymentRequest request){
         ResponseEntity responseEntity = paymentService.transfer(request);
-        return responseEntity.getStatusCodeValue();
+        return responseEntity;
     }
 }

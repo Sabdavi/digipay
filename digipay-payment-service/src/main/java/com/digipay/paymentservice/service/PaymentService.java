@@ -10,6 +10,7 @@ import io.eventuate.tram.messaging.producer.MessageProducer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
@@ -36,17 +37,27 @@ public class PaymentService {
     public ResponseEntity transfer(PaymentRequest paymentRequest) {
         ProviderFactory factory = new ProviderFactory(paymentRequest.getSource());
         Provider provider = factory.createProvider();
-        ResponseEntity responseEntity = provider.pay(paymentRequest);
-
+        ResponseEntity responseEntity  = null;
+        Transaction transaction = null;
+        try {
+            responseEntity = provider.pay(paymentRequest);
+        }
+        catch (RestClientException ex){
+            ex.printStackTrace();
+            transaction = Transaction.createTransaction(paymentRequest.getDest(), paymentRequest.getSource(),
+                    paymentRequest.getAmount(), new Date(), null, FAILED);
+            transactionRepository.save(transaction);
+            return new ResponseEntity(HttpStatus.REQUEST_TIMEOUT);
+        }
         int status = responseEntity.getStatusCodeValue();
         status = status == HttpStatus.OK.value() ? SUCCESSFUL : FAILED;
-        Transaction transaction = Transaction.createTransaction(paymentRequest.getDest(), paymentRequest.getSource(),
+        transaction = Transaction.createTransaction(paymentRequest.getDest(), paymentRequest.getSource(),
                 paymentRequest.getAmount(), new Date(), null, status);
         transactionRepository.save(transaction);
 
         if (status == SUCCESSFUL) {
             // TODO: 7/31/20 integrate with oauth server
-            SmsRequest smsRequest = new SmsRequest("Successful", "09124363760");
+            SmsRequest smsRequest = new SmsRequest("Successful Payment", "09124363760");
             ObjectMapper mapper = new ObjectMapper();
             String message = null;
             try {
@@ -62,12 +73,12 @@ public class PaymentService {
     public List<ReportResponse> getTransactions(ReportData reportData) {
 
 
-        List<ReportResult> failedTransactions = transactionRepository.getFailedTransactions(reportData.getFrom(),reportData.getTo());
-        List<ReportResult> successfulTransactions = transactionRepository.getSuccessfulTransactions(reportData.getFrom(),reportData.getTo());
+        List<ReportResult> failedTransactions = transactionRepository.getFailedTransactions(reportData.getFrom(), reportData.getTo());
+        List<ReportResult> successfulTransactions = transactionRepository.getSuccessfulTransactions(reportData.getFrom(), reportData.getTo());
         List<ReportResponse> response = new ArrayList<>();
 
         // TODO: 8/1/20 merge to a single lambda
-        for(ReportResult result : successfulTransactions){
+        for (ReportResult result : successfulTransactions) {
             ReportResponse response1 = new ReportResponse();
             response1.setSuccessCount(result.getCount());
             response1.setCardNumber(result.getCardNumber());

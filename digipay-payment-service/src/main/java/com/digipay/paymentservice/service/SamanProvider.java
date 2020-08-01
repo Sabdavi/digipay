@@ -6,7 +6,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class SamanProvider implements Provider {
     private RestTemplate restTemplate;
-    private final String url = "http://localhost:8060/saman-payment/payments/transfer";
+    private final String url = "http://localhost:8060/saman-payment/cards/pay";
 
     public SamanProvider() {
         this.restTemplate = new RestTemplate();
