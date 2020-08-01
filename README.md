@@ -109,7 +109,7 @@ Steps for runnig the project:
 
 #4.1. download CDC jar from https://mvnrepository.com/artifact/io.eventuate.tram.core/eventuate-tram-cdc-mysql-service/0.21.3.RELEASE
 
-#4.run CDC service jar: java -jar eventuate-tram-cdc-mysql-service-0.21.3.RELEASE.jar --spring-config-location=./application.properties
+#4.2.run CDC service jar: java -jar eventuate-tram-cdc-mysql-service-0.21.3.RELEASE.jar --spring-config-location=./application.properties
 
 here is a properties file:
 
